@@ -12,6 +12,7 @@ import com.pathplanner.lib.path.PathPlannerPath;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
+import frc.robot.subsystems.AmpSubsystem;
 import frc.robot.subsystems.Drivetrain;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
@@ -20,22 +21,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.commands.drive.Drive;
 import frc.robot.commands.drive.resetNavx;
 import frc.robot.subsystems.SwerveModule;
+import frc.robot.commands.AmpCommand;
 
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.commands.intake;
-import frc.robot.commands.intakeControl;
-import frc.robot.commands.shootIndex;
-import frc.robot.commands.spool;
-import frc.robot.subsystems.resetSubsystem;
-import frc.robot.subsystems.intakeSystems.ampSpin;
-import frc.robot.subsystems.intakeSystems.intakeArmSubsystem;
-import frc.robot.subsystems.intakeSystems.intakeRollerSubsystem;
-import frc.robot.subsystems.shooterSystems.shooterArmSubsystem;
-import frc.robot.subsystems.shooterSystems.shooterRollersSubsystem;
 
 public class RobotContainer {
     //public final  AHRS navx = new AHRS();
@@ -50,15 +42,9 @@ public class RobotContainer {
     public final Drivetrain drivetrain = new Drivetrain();
     public DigitalInput m_condeDetector = new DigitalInput(9);
     public Joystick driveJoystick = new Joystick(0);
-    //public Joystick operatorJoystick = new Joystick(1);
+    public final AmpSubsystem m_AmpSubsystem = new AmpSubsystem();
+    public Joystick operatorJoystick = new Joystick(1);
 
-    public static intakeArmSubsystem m_IntakeArmSubsystem = new intakeArmSubsystem();
-  public static intakeRollerSubsystem m_IntakeRollerSubsystem = new intakeRollerSubsystem();
-  public static ampSpin m_AmpSpin = new ampSpin();
-  // intakeGroup^
-  public static shooterArmSubsystem m_ShooterArmSubsystem = new shooterArmSubsystem();
-  public static shooterRollersSubsystem m_ShooterRollersSubsystem = new shooterRollersSubsystem();
-  private resetSubsystem  resetVariables = new resetSubsystem();
 
   
   
@@ -90,12 +76,8 @@ public class RobotContainer {
     public RobotContainer () {
         configureButtonBindings();
        
-        NamedCommands.registerCommand("ResetNavxFieldHeading", drivetrain.resetNavxMark(0));//if this offsets by 90, like forward is left or right, go into drivetrain and delete the part about initial angle, that may be the issue. 
        
-        NamedCommands.registerCommand("Spool Up", new spool());
-        
-        NamedCommands.registerCommand("Shoot", new shootIndex());
-        NamedCommands.registerCommand("Intake", new intake());
+
 
         var alliance = DriverStation.getAlliance();
                     
@@ -105,27 +87,32 @@ public class RobotContainer {
         
 
     }
-
-    // public void flatStanley() {
-    //     drivetrain.drive(.5, 0, 0, true, false);
-    // }
     
 
 
     public void configureButtonBindings () { 
         drivetrain.drive(driveJoystick.getRawAxis(1), -driveJoystick.getRawAxis(0), -driveJoystick.getRawAxis(4), true, false);
-        //new JoystickButton(operatorJoystick, 1).onTrue(new intake());
-         new JoystickButton(driveJoystick, 2).onTrue(new shootIndex());
-    //  new JoystickButton(mJoystick, 2).onTrue(new intakeControl());
-         //new JoystickButton(operatorJoystick, 6).onTrue(new spool());
-         
-         //new JoystickButton(operatorJoystick, 6).onTrue(new spool());
+        
+
+
+
+
         if (driveJoystick.getRawButton(4) == false) {
             drivetrain.drive(-driveJoystick.getRawAxis(1), driveJoystick.getRawAxis(0), driveJoystick.getRawAxis(4), true, false);
         
         } else {           
         
         }
+
+        
+        new JoystickButton(operatorJoystick, 1).onTrue(new AmpCommand(m_AmpSubsystem, 0));
+        new JoystickButton(operatorJoystick, 2).onTrue(new AmpCommand(m_AmpSubsystem, 1));
+        new JoystickButton(operatorJoystick, 1).onFalse(new AmpCommand(m_AmpSubsystem, 2));
+
+
+
+
+        //new JoystickButton(operatorJoystick, 1).onTrue(new AmpCommand());
 
 
 
@@ -135,7 +122,6 @@ public class RobotContainer {
 
         }
         //shooter commands
-        // new Shoot(m_shooterSubsystem, 0);
         // new JoystickButton(driveJoystick, 6).onFalse(new Shoot(m_shooterSubsystem, 0)); //runs the shoot motors, for the operator
         // new JoystickButton(driveJoystick, 7).onFalse(new Shoot(m_shooterSubsystem, 1)); //stops all three of the motors
         // new JoystickButton(driveJoystick, 4).onTrue(new Shoot(m_shooterSubsystem, 2)); //runs the index to feed the donut to the shooter
